@@ -4,15 +4,17 @@ import styled from '../../utils/styled'
 interface DataTableProps {
   columns: string[]
   widths?: string[]
+  handleClick?: (columnId: string) => void
 }
 
-const DataTable: React.SFC<DataTableProps> = ({ children, widths, columns }) => (
+const DataTable: React.SFC<DataTableProps> = ({ children, widths, columns, handleClick }) => (
   <Wrapper>
     <thead>
       <tr>
         {columns.map((column, i) => (
           <th key={i} style={widths && widths[i] ? { width: widths[i] } : undefined}>
             {column}
+            {handleClick && <button onClick={() => handleClick(column)}>+</button>}
           </th>
         ))}
       </tr>

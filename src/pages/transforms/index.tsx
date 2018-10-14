@@ -12,7 +12,13 @@ import LoadingSpinner from '../../components/data/LoadingSpinner'
 
 import { ApplicationState, ConnectedReduxProps } from '../../store'
 import { Transform, Dictionary } from '../../store/transforms/types'
-import { fetchRequest, createDictionary, deleteTranslation } from '../../store/transforms/actions'
+import {
+  fetchRequest,
+  createDictionary,
+  deleteTranslation,
+  deleteDictionary,
+  updateTranslation
+} from '../../store/transforms/actions'
 
 // Separate state props + dispatch props to their own interfaces.
 interface PropsFromState {
@@ -20,6 +26,7 @@ interface PropsFromState {
   data: Transform[]
   errors: string
   dictionaries: Dictionary[]
+  output: Transform[]
 }
 
 // We can use `typeof` here to map our dispatch types to the props, like so.
@@ -27,6 +34,8 @@ interface PropsFromDispatch {
   fetchRequest: typeof fetchRequest
   createDictionary: typeof createDictionary
   deleteTranslation: typeof deleteTranslation
+  updateTranslation: typeof updateTranslation
+  deleteDictionary: typeof deleteDictionary
 }
 
 // Combine both state + dispatch props - as well as any props we want to pass - in a union type.
@@ -53,11 +62,11 @@ class TransformsIndexPage extends React.Component<AllProps> {
                 </LoadingOverlayInner>
               </LoadingOverlay>
             )}
-            <p>
-              <button onClick={this.handleCreateDictionary}>Add Dictionary</button>
-            </p>
+            <p> Original Dataset </p>
             {this.renderData()}
             {this.renderDictionaries()}
+            <p> Transformed Dataset: </p>
+            {this.renderOutput()}
           </TableWrapper>
         </Container>
       </Page>
@@ -66,10 +75,17 @@ class TransformsIndexPage extends React.Component<AllProps> {
 
   private renderDictionaries() {
     const { dictionaries } = this.props
-    return dictionaries.map(items => (
-      <DataTable columns={['From', 'To']} widths={['', '']}>
-        {this.renderTranslations(items)}
-      </DataTable>
+    const key = 'translation_0'
+    return dictionaries.map((items, index) => (
+
+      <TableWrapper>
+         { console.log(dictionaries)}
+        <p>{`Dictionary for ${items[key].columnId}`}</p>
+        <DataTable columns={['From', 'To', 'Options']} widths={['auto', '', '']}>
+          {this.renderTranslations(items)}
+        </DataTable>
+        <TableCloseButton onClick={() => this.props.deleteDictionary(index)}>x</TableCloseButton>
+      </TableWrapper>
     ))
   }
 
@@ -78,7 +94,15 @@ class TransformsIndexPage extends React.Component<AllProps> {
       return (
         <tr key={item}>
           <td>{translations[item].from}</td>
-          <td>{translations[item].to}</td>
+          <td>
+            <input
+              type="text"
+              placeholder={translations[item].to}
+              onChange={e =>
+                this.props.updateTranslation(e.target.value, item, translations[item].columnId)
+              }
+            />
+          </td>
           <td>
             <button
               onClick={() => {
@@ -93,14 +117,18 @@ class TransformsIndexPage extends React.Component<AllProps> {
     })
   }
 
-  private handleCreateDictionary = () => {
-    this.props.createDictionary('color')
+  private handleCreateDictionary = (id: string) => {
+    this.props.createDictionary(id.toLowerCase())
   }
   private renderData() {
     const { loading, data } = this.props
 
     return (
-      <DataTable columns={['Products', 'Color', 'Price']} widths={['auto', '', '']}>
+      <DataTable
+        handleClick={this.handleCreateDictionary}
+        columns={['Product', 'Color', 'Price']}
+        widths={['auto', '', '']}
+      >
         {loading &&
           data.length === 0 && (
             <TransformLoading>
@@ -112,7 +140,33 @@ class TransformsIndexPage extends React.Component<AllProps> {
             <TransformDetail>
               {/* <TransformIcon src={API_ENDPOINT + transform.icon} alt={transform.name} /> */}
               <TransformName>
-                <Link to={`/transforms/${transform.name}`}>{transform.name}</Link>
+                <Link to={`/transforms/${transform.product}`}>{transform.product}</Link>
+              </TransformName>
+            </TransformDetail>
+            <td>{transform.color}</td>
+            <td>{transform.price}</td>
+          </tr>
+        ))}
+      </DataTable>
+    )
+  }
+  private renderOutput() {
+    const { loading, output } = this.props
+
+    return (
+      <DataTable columns={['Product', 'Color', 'Price']} widths={['auto', '', '']}>
+        {loading &&
+          output.length === 0 && (
+            <TransformLoading>
+              <td colSpan={3}>Loading...</td>
+            </TransformLoading>
+          )}
+        {output.map(transform => (
+          <tr key={transform.product}>
+            <TransformDetail>
+              {/* <TransformIcon src={API_ENDPOINT + transform.icon} alt={transform.name} /> */}
+              <TransformName>
+                <Link to={`/transforms/${transform.product}`}>{transform.product}</Link>
               </TransformName>
             </TransformDetail>
             <td>{transform.color}</td>
@@ -131,16 +185,20 @@ const mapStateToProps = ({ transforms }: ApplicationState) => ({
   loading: transforms.loading,
   errors: transforms.errors,
   data: transforms.data,
-  dictionaries: transforms.dictionaries
+  dictionaries: transforms.dictionaries,
+  output: transforms.output
 })
 
 // mapDispatchToProps is especially useful for constraining our actions to the connected component.
 // You can access these via `this.props`.
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   fetchRequest: () => dispatch(fetchRequest()),
-  createDictionary: () => dispatch(createDictionary('color')),
+  createDictionary: (id: string) => dispatch(createDictionary(id)),
+  deleteDictionary: (id: number) => dispatch(deleteDictionary(id)),
   deleteTranslation: (translationId: string, dictionaryId: string) =>
-    dispatch(deleteTranslation(translationId, dictionaryId))
+    dispatch(deleteTranslation(translationId, dictionaryId)),
+  updateTranslation: (value: string, translationId: string, dictionaryId: string) =>
+    dispatch(updateTranslation(value, translationId, dictionaryId))
 })
 
 // Now let's connect our component!
@@ -155,6 +213,11 @@ const TableWrapper = styled('div')`
   max-width: ${props => props.theme.widths.md};
   margin: 0 auto;
   min-height: 200px;
+`
+const TableCloseButton = styled('button')`
+  position: absolute;
+  top: 10px;
+  right: 10px;
 `
 
 const TransformDetail = styled('td')`

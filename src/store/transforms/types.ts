@@ -15,7 +15,7 @@ export interface Translation {
   to: string
 }
 
-export interface Dictionary {
+export interface Dictionary extends Array<Dictionary> {
   id: string
   name: string
   translations: Translation
@@ -45,6 +45,7 @@ export const enum TransformsActionTypes {
   CREATE_DICTIONARY = '@@transform/CREATE_DICTIONARY',
   DELETE_DICTIONARY = '@@transform/DELETE_DICTIONARY',
   DELETE_TRANSLATION = '@@transform/DELETE_TRANSLATION',
+  UPDATE_TRANSLATION = '@@transform/UPDATE_TRANSLATION',
 }
 
 // Declare state types with `readonly` modifier to get compile time immutability.
