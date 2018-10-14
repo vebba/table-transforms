@@ -6,6 +6,7 @@ import Header from './components/layout/Header'
 import IndexPage from './pages/index'
 import HeroesPage from './pages/heroes'
 import TeamsPage from './pages/teams'
+import TransformsPage from './pages/transforms'
 
 // If your app is big + you have routes with a lot of components, you should consider
 // code-splitting your routes! If you bundle stuff up with Webpack, I recommend `react-loadable`.
@@ -23,6 +24,7 @@ const Routes: React.SFC = () => (
       <Route exact path="/" component={IndexPage} />
       <Route path="/heroes" component={HeroesPage} />
       <Route path="/teams" component={TeamsPage} />
+      <Route path="/transforms" component={TransformsPage} />
       <Route component={() => <div>Not Found</div>} />
     </Switch>
   </Root>

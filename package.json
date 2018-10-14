@@ -53,6 +53,7 @@
     "@types/react-redux": "^6.0.2",
     "@types/react-router-dom": "^4.2.7",
     "@types/react-router-redux": "^5.0.15",
+    "@types/redux": "^3.6.0",
     "tslint": "^5.10.0",
     "tslint-config-blvd": "^1.0.0",
     "typescript": "^2.9.2"

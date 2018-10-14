@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { NavLink } from 'react-router-dom'
-import styled from '../../utils/styled'
 import LayoutContainer from '../../containers/LayoutContainer'
+import styled from '../../utils/styled'
 import Container from './Container'
 import { css } from 'emotion'
 
@@ -24,6 +24,9 @@ const Header: React.SFC<HeaderProps> = ({ title }) => (
         </HeaderNavLink>
         <HeaderNavLink to="/teams" activeClassName={HeaderLinkActive}>
           Teams
+        </HeaderNavLink>
+        <HeaderNavLink to="/transforms" activeClassName={HeaderLinkActive}>
+          Transforms
         </HeaderNavLink>
       </HeaderNav>
       <HeaderRight>

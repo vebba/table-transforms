@@ -1,0 +1,7 @@
+{
+  "products": [
+    { "name": "apple", "color": "blue", "price": "300CH" },
+    { "name": "samsung", "color": "silver", "price": "500CH" },
+    { "name": "huawei", "color": "yellow", "price": "800CH" }
+  ]
+}
