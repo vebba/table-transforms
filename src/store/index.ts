@@ -3,12 +3,7 @@ import { all, fork } from 'redux-saga/effects'
 
 import { LayoutState, layoutReducer } from './layout'
 
-import heroesSaga from './heroes/sagas'
-import { heroesReducer } from './heroes/reducer'
-import { HeroesState } from './heroes/types'
-import teamsSaga from './teams/sagas'
-import { TeamsState } from './teams/types'
-import { teamsReducer } from './teams/reducer'
+
 import { transformsReducer } from './transforms/reducer'
 
 import { TransformsState } from './transforms/types'
@@ -17,8 +12,6 @@ import transformsSaga from './transforms/sagas'
 // The top-level state object
 export interface ApplicationState {
   layout: LayoutState
-  heroes: HeroesState
-  teams: TeamsState
   transforms: TransformsState
 }
 
@@ -32,8 +25,6 @@ export interface ConnectedReduxProps<A extends Action = AnyAction> {
 // the reducer acts on the corresponding ApplicationState property type.
 export const rootReducer = combineReducers<ApplicationState>({
   layout: layoutReducer,
-  heroes: heroesReducer,
-  teams: teamsReducer,
   transforms: transformsReducer
 })
 
@@ -41,5 +32,5 @@ export const rootReducer = combineReducers<ApplicationState>({
 // "generator function", which you can read about here:
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function*
 export function* rootSaga() {
-  yield all([fork(heroesSaga), fork(teamsSaga), fork(transformsSaga)])
+  yield all([fork(transformsSaga)])
 }

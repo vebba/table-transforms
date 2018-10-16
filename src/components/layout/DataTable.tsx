@@ -14,7 +14,7 @@ const DataTable: React.SFC<DataTableProps> = ({ children, widths, columns, handl
         {columns.map((column, i) => (
           <th key={i} style={widths && widths[i] ? { width: widths[i] } : undefined}>
             {column}
-            {handleClick && <button onClick={() => handleClick(column)}>+</button>}
+            {handleClick && <TableButton onClick={() => handleClick(column)}>+</TableButton>}
           </th>
         ))}
       </tr>
@@ -25,6 +25,20 @@ const DataTable: React.SFC<DataTableProps> = ({ children, widths, columns, handl
 
 export default DataTable
 
+const TableButton = styled('button')`
+  display: inline-block;
+  margin-left: 1rem;
+  padding: 0.2rem 0.4rem;
+  border: 1px solid ${props => props.theme.colors.white};
+  border-radius: 3px;
+  background-color: ${props => props.theme.colors.white};
+  color: ${props => props.theme.colors.brand};
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+`
 const Wrapper = styled('table')`
   margin-bottom: 0;
   border-top: 1px solid ${props => props.theme.colors.borders};

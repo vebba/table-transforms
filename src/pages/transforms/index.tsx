@@ -17,7 +17,8 @@ import {
   createDictionary,
   deleteTranslation,
   deleteDictionary,
-  updateTranslation
+  updateTranslation,
+  createTranslation
 } from '../../store/transforms/actions'
 
 // Separate state props + dispatch props to their own interfaces.
@@ -36,12 +37,13 @@ interface PropsFromDispatch {
   deleteTranslation: typeof deleteTranslation
   updateTranslation: typeof updateTranslation
   deleteDictionary: typeof deleteDictionary
+  createTranslation: typeof createTranslation
 }
 
 // Combine both state + dispatch props - as well as any props we want to pass - in a union type.
 type AllProps = PropsFromState & PropsFromDispatch & ConnectedReduxProps
 
-// const API_ENDPOINT = process.env.REACT_APP_API_ENDPOINT || 'https://api.opendota.com'
+
 
 class TransformsIndexPage extends React.Component<AllProps> {
   public componentDidMount() {
@@ -75,21 +77,27 @@ class TransformsIndexPage extends React.Component<AllProps> {
 
   private renderDictionaries() {
     const { dictionaries } = this.props
-    const key = 'translation_0'
-    return dictionaries.map((items, index) => (
-
+    return Object.keys(dictionaries).map(dictionary => (
       <TableWrapper>
-         { console.log(dictionaries)}
-        <p>{`Dictionary for ${items[key].columnId}`}</p>
-        <DataTable columns={['From', 'To', 'Options']} widths={['auto', '', '']}>
-          {this.renderTranslations(items)}
+        {console.log(dictionary, 'renderDictionaries')}
+        <p>{`Dictionary for ${dictionary}`}</p>
+        <DataTable columns={['From', 'To', 'Options']} widths={['33%', '33%', '33%']}>
+          {this.renderTranslations(dictionaries[dictionary])}
         </DataTable>
-        <TableCloseButton onClick={() => this.props.deleteDictionary(index)}>x</TableCloseButton>
+        <TableCloseButton
+          onClick={() => this.props.createTranslation('vlue', 'translation_id', dictionary)}
+        >
+          Add row
+        </TableCloseButton>
+        <TableCloseButton onClick={() => this.props.deleteDictionary(dictionary)}>
+          Delete
+        </TableCloseButton>
       </TableWrapper>
     ))
   }
 
   private renderTranslations = (translations: any) => {
+    console.log('[renderTranslations] : ', translations)
     return Object.keys(translations).map(item => {
       return (
         <tr key={item}>
@@ -106,7 +114,8 @@ class TransformsIndexPage extends React.Component<AllProps> {
           <td>
             <button
               onClick={() => {
-                this.props.deleteTranslation(item, translations[item].dictionaryId)
+                console.log(item, translations[item].columnId)
+                this.props.deleteTranslation(item, translations[item].columnId)
               }}
             >
               -
@@ -194,11 +203,13 @@ const mapStateToProps = ({ transforms }: ApplicationState) => ({
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   fetchRequest: () => dispatch(fetchRequest()),
   createDictionary: (id: string) => dispatch(createDictionary(id)),
-  deleteDictionary: (id: number) => dispatch(deleteDictionary(id)),
+  deleteDictionary: (id: string) => dispatch(deleteDictionary(id)),
   deleteTranslation: (translationId: string, dictionaryId: string) =>
     dispatch(deleteTranslation(translationId, dictionaryId)),
   updateTranslation: (value: string, translationId: string, dictionaryId: string) =>
-    dispatch(updateTranslation(value, translationId, dictionaryId))
+    dispatch(updateTranslation(value, translationId, dictionaryId)),
+  createTranslation: (value: string, translationId: string, dictionaryId: string) =>
+    dispatch(createTranslation(value, translationId, dictionaryId))
 })
 
 // Now let's connect our component!
@@ -216,8 +227,19 @@ const TableWrapper = styled('div')`
 `
 const TableCloseButton = styled('button')`
   position: absolute;
-  top: 10px;
+  top: 0;
   right: 10px;
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid ${props => props.theme.colors.white};
+  border-radius: 3px;
+  background-color: ${props => props.theme.colors.white};
+  color: ${props => props.theme.colors.brand};
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.3s ease;
 `
 
 const TransformDetail = styled('td')`

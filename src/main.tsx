@@ -44,16 +44,12 @@ class Main extends React.Component<AllProps> {
   }
 }
 
-// It's usually good practice to only include one context at a time in a connected component.
-// Although if necessary, you can always include multiple contexts. Just make sure to
-// separate them from each other to prevent prop conflicts.
+
 const mapStateToProps = ({ layout }: ApplicationState) => ({
   theme: layout.theme
 })
 
-// Normally you wouldn't need any generics here (since types infer from the passed functions).
-// But since we pass some props from the `index.js` file, we have to include them.
-// For an example of a `connect` function without generics, see `./containers/LayoutContainer`.
+
 export default connect<PropsFromState, PropsFromDispatch, OwnProps, ApplicationState>(
   mapStateToProps
 )(Main)

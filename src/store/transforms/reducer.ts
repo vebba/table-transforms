@@ -7,7 +7,7 @@ const initialState: TransformsState = {
   errors: undefined,
   loading: false,
   output: [],
-  dictionaries: []
+  dictionaries: {}
 }
 
 const removeProperty = (obj: any, property: string) => {
@@ -32,6 +32,19 @@ const reducer: Reducer<TransformsState> = (state = initialState, action) => {
     case TransformsActionTypes.FETCH_ERROR: {
       return { ...state, loading: false, errors: action.payload }
     }
+    case TransformsActionTypes.CREATE_TRANSLATION: {
+      const { translationId, value, columnId } = action.payload
+      return {
+        ...state,
+        dictionaries: {
+          ...state.dictionaries,
+          [columnId]: {
+            ...state.dictionaries[columnId],
+            [translationId]: value
+          }
+        }
+      }
+    }
     case TransformsActionTypes.UPDATE_TRANSLATION: {
       const { translationId, value, columnId } = action.payload
       return {
@@ -49,24 +62,24 @@ const reducer: Reducer<TransformsState> = (state = initialState, action) => {
     }
     case TransformsActionTypes.DELETE_TRANSLATION: {
       const { dictionaryId, translationId } = action.payload
-      return {
-        ...state,
-        dictionaries: state.dictionaries.map((dictionary, index) => {
-          if (index !== parseInt(dictionaryId, 10)) {
-            return dictionary
-          }
-          return removeProperty(dictionary, translationId)
-        })
+      const { [dictionaryId]: dictionary, ...rest } = state.dictionaries
+      const { [translationId]: translation, ...translations } = state.dictionaries[dictionaryId]
+      const result = { ...rest, [dictionaryId]: translations }
+      if (Object.keys(translations).length !== 0) {
+        return {
+          ...state,
+          dictionaries: result
+        }
       }
+      return { ...state, dictionaries: removeProperty(state.dictionaries, dictionaryId) }
     }
     case TransformsActionTypes.DELETE_DICTIONARY: {
-      console.log(action.payload)
+
+      const { [action.payload]: removed, ...rest } = state.dictionaries
+
       return {
         ...state,
-        dictionaries: [
-          ...state.dictionaries.slice(0, action.payload),
-          ...state.dictionaries.slice(action.payload + 1)
-        ]
+        dictionaries: rest
       }
     }
     case TransformsActionTypes.CREATE_DICTIONARY: {
@@ -79,9 +92,15 @@ const reducer: Reducer<TransformsState> = (state = initialState, action) => {
         }
         return item
       }, {})
+
       return {
         ...state,
-        dictionaries: [...state.dictionaries, translation]
+        dictionaries: {
+          ...state.dictionaries,
+          [action.payload]: !state.dictionaries[action.payload]
+            ? translation
+            : state.dictionaries[action.payload]
+        }
       }
     }
     default: {
