@@ -6,10 +6,9 @@ import Header from './components/layout/Header'
 import IndexPage from './pages/index'
 import TransformsPage from './pages/transforms'
 
-
 const Routes: React.SFC = () => (
   <Root>
-    <Header title="Example App" />
+    <Header title="Glencore Test" />
     <Switch>
       <Route exact path="/" component={IndexPage} />
       <Route path="/transforms" component={TransformsPage} />
